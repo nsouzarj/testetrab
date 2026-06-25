@@ -1,0 +1,66 @@
+version: '3.8'
+
+services:
+  # 1. Banco de Dados MySQL
+  mysql:
+    image: mysql:8.0
+    container_name: mysql-sangue
+    restart: always
+    ports:
+      - "3306:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: "#Nso196840"
+      MYSQL_DATABASE: "banco_sangue"
+      MYSQL_USER: "nsouzaet_root"
+      MYSQL_PASSWORD: "#Nso196840"
+    volumes:
+      - mysql_data:/var/lib/mysql
+    networks:
+      - sangue-network
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "nsouzaet_root", "-p#Nso196840"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # 2. Back-end Spring Boot
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: backend-sangue
+    restart: always
+    ports:
+      - "8080:8080"
+    environment:
+      # Sobrescreve as variáveis do application.properties para usar o serviço do MySQL do Docker
+      SPRING_DATASOURCE_URL: "jdbc:mysql://mysql:3306/banco_sangue?createDatabaseIfNotExist=true&useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true"
+      SPRING_DATASOURCE_USERNAME: "nsouzaet_root"
+      SPRING_DATASOURCE_PASSWORD: "#Nso196840"
+      SPRING_JPA_HIBERNATE_DDL_AUTO: "update"
+    depends_on:
+      mysql:
+        condition: service_healthy
+    networks:
+      - sangue-network
+
+  # 3. Front-end Angular (servido pelo Nginx)
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: frontend-sangue
+    restart: always
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
+    networks:
+      - sangue-network
+
+volumes:
+  mysql_data:
+
+networks:
+  sangue-network:
+    driver: bridge

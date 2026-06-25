@@ -103,6 +103,34 @@ Para demonstrar conhecimento técnico e boas práticas exigidas pelo teste, a ba
 
 ## 🚀 Como Executar o Projeto
 
+Você pode rodar toda a aplicação de forma automatizada usando **Docker Compose**, ou executar cada módulo manualmente.
+
+### 🐋 Opção A: Executar via Docker Compose (Recomendado e Automatizado)
+
+Se você preferir executar toda a aplicação (MySQL + Back-end + Front-end) de forma isolada, rápida e portátil, basta ter o Docker instalado e rodar na raiz do projeto:
+
+```bash
+docker compose up --build -d
+```
+
+Este comando irá:
+1. Subir o MySQL 8.0, criar o banco `banco_sangue` e configurar volumes para persistência de dados.
+2. Compilar e empacotar a API do Spring Boot e iniciar o servidor na porta `8080` assim que o banco de dados estiver pronto.
+3. Compilar a build de produção do Angular e servi-la de forma otimizada via servidor web Nginx na porta padrão `80`.
+
+Você poderá acessar:
+* **Painel Dashboard (Frontend):** [http://localhost](http://localhost) (na porta HTTP padrão `80`)
+* **API Swagger UI (Backend):** [http://localhost:8080/swagger-ui/index.html](http://localhost:8080/swagger-ui/index.html)
+
+Para parar os contêineres e remover os volumes:
+```bash
+docker compose down -v
+```
+
+---
+
+### 💻 Opção B: Executar Manualmente (Desenvolvimento Local)
+
 ### Pré-requisitos
 * Java 17 ou superior instalado.
 * Node.js v23 ou superior instalado.
