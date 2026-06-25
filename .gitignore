@@ -1,0 +1,40 @@
+# --- Back-end (Maven / Java) ---
+backend/target/
+backend/*.class
+backend/*.jar
+backend/*.war
+backend/*.ear
+backend/.classpath
+backend/.project
+backend/.settings/
+backend/bin/
+
+# --- Front-end (Node.js / Angular) ---
+frontend/node_modules/
+frontend/dist/
+frontend/.angular/
+frontend/.npm/
+frontend/npm-debug.log*
+frontend/yarn-debug.log*
+frontend/yarn-error.log*
+
+# --- IDEs / Editores ---
+.idea/
+.vscode/
+*.iml
+*.ipr
+*.iws
+.project
+.classpath
+.settings/
+*.sublime-project
+*.sublime-workspace
+
+# --- Arquivos do Sistema ---
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# --- Arquivos Temporários do Agente ---
+.temp_ag_kit/
+.gemini/

@@ -1,0 +1,235 @@
+<div *ngIf="carregandoInicial" class="loading-overlay">
+  <div class="loader-drop">🩸</div>
+  <div class="loader-text">Carregando WK Banco de Sangue...</div>
+  <div class="loader-subtext">Buscando dados e relatórios estruturados no MySQL</div>
+</div>
+
+<div class="app-container">
+  <!-- Header -->
+  <header class="app-header">
+    <div class="logo-container">
+      <div class="logo-icon">🩸</div>
+      <div class="logo-text">
+        <h1>WK Banco de Sangue</h1>
+        <p>Painel de Gestão e Análise de Candidatos Doadores</p>
+      </div>
+    </div>
+
+    <!-- Upload Widget -->
+    <div class="upload-widget">
+      <label for="json-upload" class="upload-btn" [class.disabled]="carregando">
+        <span class="upload-icon">📥</span>
+        <span>{{ carregando ? 'Processando dados...' : 'Importar Candidatos (JSON)' }}</span>
+      </label>
+      <input 
+        id="json-upload" 
+        type="file" 
+        accept=".json" 
+        (change)="onFileSelected($event)" 
+        [disabled]="carregando" 
+        style="display: none;" 
+      />
+    </div>
+  </header>
+
+  <!-- Alerts -->
+  <div class="alerts-container">
+    <div *ngIf="carregando" class="alert info pulse">
+      <span class="spinner">⏳</span> Processando candidatos e atualizando registros do banco de dados MySQL...
+    </div>
+    <div *ngIf="mensagemSucesso" class="alert success slide-in">
+      <span class="alert-icon">✅</span> {{ mensagemSucesso }}
+    </div>
+    <div *ngIf="mensagemErro" class="alert danger slide-in">
+      <span class="alert-icon">⚠️</span> {{ mensagemErro }}
+    </div>
+  </div>
+
+  <!-- Main Content -->
+  <main class="app-main">
+    
+    <!-- Empty State -->
+    <div *ngIf="!dadosCarregados && !carregando" class="empty-state">
+      <div class="empty-icon">📁</div>
+      <h2>Nenhum dado cadastrado</h2>
+      <p>O banco de dados está vazio. Por favor, clique em <strong>Importar Candidatos (JSON)</strong> no topo e selecione o arquivo <code>data.json</code> do projeto para popular a base de dados.</p>
+    </div>
+
+    <!-- Dashboard -->
+    <div *ngIf="dadosCarregados" class="dashboard-grid fade-in">
+      
+      <!-- Card 1: Candidatos por Estado -->
+      <section class="card card-full">
+        <div class="card-header">
+          <span class="card-icon">🗺️</span>
+          <h2>Densidade de Candidatos por Estado</h2>
+        </div>
+        <div class="card-content">
+          <div class="state-grid">
+            <div *ngFor="let item of candidatosPorEstado" class="state-badge">
+              <span class="state-name">{{ item.estado }}</span>
+              <span class="state-count">{{ item.quantidade }}</span>
+              <div class="progress-bar">
+                <div class="progress-fill" [style.width.%]="(item.quantidade / 25) * 100"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Card 2: Percentual de Obesos por Sexo -->
+      <section class="card card-half card-obesity">
+        <div class="card-header">
+          <span class="card-icon">⚖️</span>
+          <h2>Percentual de Obesos por Sexo</h2>
+        </div>
+        <div class="card-content" *ngIf="percentualObesos">
+          <div class="obesity-row">
+            <div class="obesity-box male">
+              <span class="gender-icon">🚹 Homens</span>
+              <div class="chart-container">
+                <svg viewBox="0 0 36 36" class="circular-chart">
+                  <path class="circle-bg"
+                    d="M18 2.0845
+                      a 15.9155 15.9155 0 0 1 0 31.831
+                      a 15.9155 15.9155 0 0 1 0 -31.831"
+                  />
+                  <path class="circle"
+                    [attr.stroke-dasharray]="percentualObesos.percentualHomens + ', 100'"
+                    d="M18 2.0845
+                      a 15.9155 15.9155 0 0 1 0 31.831
+                      a 15.9155 15.9155 0 0 1 0 -31.831"
+                  />
+                  <text x="18" y="20.35" class="percentage">{{ percentualObesos.percentualHomens | number:'1.1-1' }}%</text>
+                </svg>
+              </div>
+              <p>IMC > 30 considerado obeso</p>
+            </div>
+            
+            <div class="obesity-box female">
+              <span class="gender-icon">🚺 Mulheres</span>
+              <div class="chart-container">
+                <svg viewBox="0 0 36 36" class="circular-chart">
+                  <path class="circle-bg"
+                    d="M18 2.0845
+                      a 15.9155 15.9155 0 0 1 0 31.831
+                      a 15.9155 15.9155 0 0 1 0 -31.831"
+                  />
+                  <path class="circle"
+                    [attr.stroke-dasharray]="percentualObesos.percentualMulheres + ', 100'"
+                    d="M18 2.0845
+                      a 15.9155 15.9155 0 0 1 0 31.831
+                      a 15.9155 15.9155 0 0 1 0 -31.831"
+                  />
+                  <text x="18" y="20.35" class="percentage">{{ percentualObesos.percentualMulheres | number:'1.1-1' }}%</text>
+                </svg>
+              </div>
+              <p>IMC > 30 considerado obeso</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Card 3: IMC Médio por Faixa Etária -->
+      <section class="card card-half">
+        <div class="card-header">
+          <span class="card-icon">📈</span>
+          <h2>IMC Médio por Faixa Etária</h2>
+        </div>
+        <div class="card-content scrollable">
+          <!-- Gráfico de Barras Verticais Dinâmico -->
+          <div class="bar-chart-container">
+            <div *ngFor="let item of imcMedioPorFaixaEtaria" class="bar-chart-bar-wrapper">
+              <div class="bar-chart-bar" 
+                   [style.height.%]="(item.imcMedio / 40) * 100" 
+                   [class.overweight]="item.imcMedio > 25">
+                <span class="bar-tooltip">Faixa: {{ item.faixaEtaria }} anos<br>IMC Médio: {{ item.imcMedio | number:'1.2-2' }}</span>
+              </div>
+              <span class="bar-label">{{ item.faixaEtaria }}</span>
+            </div>
+          </div>
+
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Faixa Etária</th>
+                <th>IMC Médio</th>
+                <th>Classificação</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let item of imcMedioPorFaixaEtaria">
+                <td><strong>{{ item.faixaEtaria }} anos</strong></td>
+                <td>{{ item.imcMedio | number:'1.2-2' }}</td>
+                <td>
+                  <span class="badge" [class.badge-normal]="item.imcMedio <= 25" [class.badge-warning]="item.imcMedio > 25">
+                    {{ item.imcMedio <= 25 ? 'Peso Normal' : 'Sobrepeso' }}
+                  </span>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- Card 4: Média de Idade por Tipo Sanguíneo -->
+      <section class="card card-half">
+        <div class="card-header">
+          <span class="card-icon">🩸</span>
+          <h2>Média de Idade por Tipo Sanguíneo</h2>
+        </div>
+        <div class="card-content">
+          <div class="blood-grid">
+            <div *ngFor="let item of idadeMediaPorTipo" class="blood-card">
+              <div class="blood-type-badge">{{ item.tipoSanguineo }}</div>
+              <div class="blood-avg-age">{{ item.idadeMedia | number:'1.1-1' }} <span>anos</span></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Card 5: Doadores Disponíveis por Tipo Receptor -->
+      <section class="card card-half">
+        <div class="card-header">
+          <span class="card-icon">🤝</span>
+          <h2>Doadores Disponíveis por Receptor</h2>
+        </div>
+        <div class="card-content scrollable">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Tipo Receptor</th>
+                <th>Doadores Aptos</th>
+                <th>Fontes Compatíveis</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let item of doadoresPorReceptor">
+                <td><span class="receptor-badge">{{ item.tipoSanguineoReceptor }}</span></td>
+                <td><strong class="count-highlight">{{ item.quantidadeDoadores }}</strong></td>
+                <td>
+                  <span class="sources-text" [ngSwitch]="item.tipoSanguineoReceptor">
+                    <span *ngSwitchCase="'A+'">A+, A-, O+, O-</span>
+                    <span *ngSwitchCase="'A-'">A-, O-</span>
+                    <span *ngSwitchCase="'B+'">B+, B-, O+, O-</span>
+                    <span *ngSwitchCase="'B-'">B-, O-</span>
+                    <span *ngSwitchCase="'AB+'">Todos (Receptor Universal)</span>
+                    <span *ngSwitchCase="'AB-'">A-, B-, O-, AB-</span>
+                    <span *ngSwitchCase="'O+'">O+, O-</span>
+                    <span *ngSwitchCase="'O-'">Apenas O-</span>
+                  </span>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer class="app-footer-bar">
+    <p>WK Technology - Processamento Técnico de Banco de Sangue em Spring Boot e Angular</p>
+  </footer>
+</div>
