@@ -135,11 +135,14 @@ docker compose down -v
 * Java 17 ou superior instalado.
 * Node.js v23 ou superior instalado.
 * Servidor MySQL ativo e disponível em rede (o projeto está pré-configurado para se conectar no IP `192.168.1.107` com o usuário `nsouzaet_root` e a senha `#Nso196840`).
+  * **Observação**: Caso você não tenha o MySQL rodando no Docker no IP `192.168.1.107`, por favor configure o endereço do seu MySQL disponível (como `localhost` ou outro endereço IP de sua preferência) no arquivo `backend/src/main/resources/application.properties` alterando as propriedades correspondentes.
 
 ---
 
 ### 1. Inicializar o Banco de Dados
-Certifique-se de que o seu contêiner MySQL Docker esteja rodando no IP `192.168.1.107` com a porta padrão `3306` aberta.
+Certifique-se de que o seu banco de dados MySQL esteja ativo e disponível.
+* **Com Docker**: Certifique-se de que o seu contêiner MySQL Docker esteja rodando no IP `192.168.1.107` com a porta padrão `3306` aberta.
+* **Sem Docker (MySQL local/externo)**: Caso não esteja utilizando o contêiner no IP `192.168.1.107`, altere o endereço do banco nas configurações do Spring Boot (`application.properties`) para apontar para o seu servidor MySQL.
 * *Nota: O projeto do Spring Boot está configurado com `createDatabaseIfNotExist=true` na string de conexão JDBC. O banco de dados chamado `banco_sangue` e suas tabelas correspondentes serão criados de forma totalmente automatizada no primeiro início do servidor.*
 
 ---
