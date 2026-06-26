@@ -1,6 +1,6 @@
 # 🩸 WK Banco de Sangue - Teste Técnico
 
-Este projeto é a implementação do teste técnico para a **WK Technology**. Trata-se de um sistema completo para gestão, processamento e análise de dados de doadores de sangue, contendo um **Back-end em Spring Boot**, um **Front-end em Angular** e integração com banco de dados **MySQL**.
+Este projeto é a implementação do teste técnico para a **WK Technology**. Trata-se de um sistema completo para gestão, processamento e análise de dados de doadores de sangue, contendo um **Back-end em Spring Boot**, um **Front-end em Angular** (com layout totalmente responsivo para dispositivos móveis/celular e desktop) e integração com banco de dados **MySQL**.
 
 ---
 
@@ -53,7 +53,7 @@ testetrab/
 ### Front-end
 * **Angular 19** (Estrutura standalone moderna)
 * **TypeScript**
-* **HTML5 & CSS3** (Vanilla CSS com design premium e responsivo)
+* **HTML5 & CSS3** (Vanilla CSS com design premium e responsividade completa para dispositivos móveis/celular e desktop)
 
 ### Banco de Dados
 * **MySQL 8** (Rodando localmente em ambiente Docker)
