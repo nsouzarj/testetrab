@@ -38,3 +38,4 @@ desktop.ini
 # --- Arquivos Temporários do Agente ---
 .temp_ag_kit/
 .gemini/
+.agents/
