@@ -4,6 +4,33 @@ Este projeto é a implementação do teste técnico para a **WK Technology**. Tr
 
 ---
 
+## 🎯 Propósito do Teste
+
+Uma agência de banco de sangue forneceu uma lista de candidatos a doadores e precisa de um sistema que processe esses dados para extrair algumas informações.
+Implemente um sistema mobile que carregue um JSON, salvo no dispositivo, com os dados e mostre os seguintes resultados:
+* **Quantos candidatos temos nessa lista em cada estado do Brasil?**
+* **IMC médio em cada faixa de idade de dez em dez anos**: 0 a 10; 11 a 20; 21 a 30, etc. (IMC = peso / altura²)
+* **Qual o percentual de obesos entre os homens e entre as mulheres?** (É obeso quem tem IMC > 30)
+* **Qual a média de idade para cada tipo sanguíneo?**
+* **A quantidade de possíveis doadores para cada tipo sanguíneo receptor.**
+
+### ⚠️ Regras de Negócio de Doação:
+* Somente pessoas com idade de **16 a 69 anos** e com peso **acima de 50 Kg** podem doar sangue.
+* **Tabela de Compatibilidade Sanguínea:**
+
+| Tipo Sanguíneo | Pode doar para | Pode receber de |
+| :--- | :--- | :--- |
+| **A+** | AB+ e A+ | A+, A-, O+ e O- |
+| **A-** | A+, A-, AB+ e AB- | A- e O- |
+| **B+** | B+ e AB+ | B+, B-, O+ e O- |
+| **B-** | B+, B-, AB+ e AB- | B- e O- |
+| **AB+** | AB+ | A+, B+, O+, AB+, A-, B-, O- e AB- |
+| **AB-** | AB+ e AB- | A-, B-, O- e AB- |
+| **O+** | A+, B+, O+ e AB+ | O+ e O- |
+| **O-** | A+, B+, O+, AB+, A-, B-, O- e AB- | O- |
+
+---
+
 ## 📁 Estrutura de Pastas do Projeto
 
 O projeto é organizado de forma modular, dividindo as responsabilidades do back-end e front-end:
@@ -66,26 +93,26 @@ O diagrama abaixo ilustra o fluxo de dados e a arquitetura geral da aplicação:
 
 ```mermaid
 graph TD
-    subgraph Frontend [Front-end - Angular 19 - Porta 4200]
-        UI[Painel Dashboard UI] -->|Upload File| Upload[Importador JSON]
-        UI -->|Consome APIs| Client[CandidatoService HTTP]
+    subgraph Frontend ["Front-end - Angular 19 - Porta 4200"]
+        UI["Painel Dashboard UI"] -->|Upload File| Upload["Importador JSON"]
+        UI -->|Consome APIs| Client["CandidatoService HTTP"]
     end
 
-    subgraph Backend [Back-end - Spring Boot - Porta 8080]
-        Ctrl[CandidatoController REST] -->|Injeta| Serv[CandidatoService Regras de Negocio]
-        Init[DataInitializer Carga Inicial] -->|Inicia Carga se Vazio| Serv
-        Serv -->|Persistencia JPA| Repos[Candidato e Endereco Repositories]
+    subgraph Backend ["Back-end - Spring Boot - Porta 8080"]
+        Ctrl["CandidatoController REST"] -->|Injeta| Serv["CandidatoService Regras de Negócio"]
+        Init["DataInitializer Carga Inicial"] -->|Inicia Carga se Vazio| Serv
+        Serv -->|Persistência JPA| Repos["Candidato e Endereço Repositories"]
     end
 
-    subgraph DatabaseServer [Banco de Dados - MySQL Docker - Porta 3306]
-        DB[(Banco de Dados: banco_sangue)]
-        DB -->|Tabela 3NF| T1[candidatos]
-        DB -->|Tabela 3NF| T2[enderecos]
+    subgraph DatabaseServer ["Banco de Dados - MySQL Docker - Porta 3306"]
+        DB[("Banco de Dados: banco_sangue")]
+        DB -->|Tabela 3NF| T1["candidatos"]
+        DB -->|Tabela 3NF| T2["enderecos"]
     end
 
-    Upload -->|POST /api/candidatos/importar| Ctrl
-    Client -->|GET /api/candidatos/relatorios/*| Ctrl
-    Repos -->|JDBC Connection - IP 192.168.1.107| DB
+    Upload -->|"POST /api/candidatos/importar"| Ctrl
+    Client -->|"GET /api/candidatos/relatorios/*"| Ctrl
+    Repos -->|"JDBC Connection - IP IP_DA_MAQUINA"| DB
 ```
 
 ---
@@ -134,15 +161,15 @@ docker compose down -v
 ### Pré-requisitos
 * Java 17 ou superior instalado.
 * Node.js v23 ou superior instalado.
-* Servidor MySQL ativo e disponível em rede (o projeto está pré-configurado para se conectar no IP `192.168.1.107` com o usuário `nsouzaet_root` e a senha `#Nso196840`).
-  * **Observação**: Caso você não tenha o MySQL rodando no Docker no IP `192.168.1.107`, por favor configure o endereço do seu MySQL disponível (como `localhost` ou outro endereço IP de sua preferência) no arquivo `backend/src/main/resources/application.properties` alterando as propriedades correspondentes.
+* Servidor MySQL ativo e disponível em rede (o projeto está pré-configurado para se conectar no IP `IP_DA_MAQUINA` com o usuário `nsouzaet_root` e a senha `#Nso196840`).
+  * **Observação**: Caso você não tenha o MySQL rodando no Docker no IP `IP_DA_MAQUINA`, por favor configure o endereço do seu MySQL disponível (como `localhost` ou outro endereço IP de sua preferência) no arquivo `backend/src/main/resources/application.properties` alterando as propriedades correspondentes.
 
 ---
 
 ### 1. Inicializar o Banco de Dados
 Certifique-se de que o seu banco de dados MySQL esteja ativo e disponível.
-* **Com Docker**: Certifique-se de que o seu contêiner MySQL Docker esteja rodando no IP `192.168.1.107` com a porta padrão `3306` aberta.
-* **Sem Docker (MySQL local/externo)**: Caso não esteja utilizando o contêiner no IP `192.168.1.107`, altere o endereço do banco nas configurações do Spring Boot (`application.properties`) para apontar para o seu servidor MySQL.
+* **Com Docker**: Certifique-se de que o seu contêiner MySQL Docker esteja rodando no IP `IP_DA_MAQUINA` com a porta padrão `3306` aberta.
+* **Sem Docker (MySQL local/externo)**: Caso não esteja utilizando o contêiner no IP `IP_DA_MAQUINA`, altere o endereço do banco nas configurações do Spring Boot (`application.properties`) para apontar para o seu servidor MySQL.
 * *Nota: O projeto do Spring Boot está configurado com `createDatabaseIfNotExist=true` na string de conexão JDBC. O banco de dados chamado `banco_sangue` e suas tabelas correspondentes serão criados de forma totalmente automatizada no primeiro início do servidor.*
 
 ---
